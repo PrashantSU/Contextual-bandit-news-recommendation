@@ -89,7 +89,7 @@ contextual-bandit-news-recommendation/
 ├── main.py           # entry point — runs all experiments
 ├── requirements.txt
 └── notebooks/
-    └── RL_Lab_1.ipynb    # original step-by-step notebook
+    └── contextual-bandit-news-recommendation.ipynb    # original step-by-step notebook
 ```
 
 ---
