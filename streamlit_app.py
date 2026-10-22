@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+import os
 
 from environment import ContextualNewsEnv
 from policies import ContextualEpsGreedy, LinUCB, RandomPolicy
@@ -11,118 +12,38 @@ from policies import ContextualEpsGreedy, LinUCB, RandomPolicy
 # -----------------------------------------------------------------------------
 st.set_page_config(page_title="The Stockholm Personalization Problem", page_icon="📰", layout="wide")
 
+# Force Streamlit to use Light Theme for Math rendering
+if not os.path.exists(".streamlit"):
+    os.makedirs(".streamlit")
+with open(".streamlit/config.toml", "w") as f:
+    f.write("[theme]\nbase=\"light\"\n")
+
 st.markdown("""
 <style>
-    /* Force clean white background */
     .stApp { background-color: #FFFFFF; }
     
-    /* Import Premium Blog Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
 
-    /* Main container layout - Narrow, readable column */
-    .block-container { 
-        padding-top: 4rem; 
-        padding-bottom: 6rem; 
-        max-width: 760px; 
-    }
+    .block-container { padding-top: 4rem; padding-bottom: 6rem; max-width: 760px; }
     
-    /* Typography */
-    h1 { 
-        font-family: 'Inter', sans-serif !important;
-        color: #111111 !important; 
-        font-weight: 700 !important; 
-        font-size: 3rem !important; 
-        line-height: 1.15 !important; 
-        margin-bottom: 1rem !important;
-        letter-spacing: -0.03em !important;
-    }
-    h2 { 
-        font-family: 'Inter', sans-serif !important;
-        color: #111111 !important; 
-        font-weight: 600 !important; 
-        font-size: 1.8rem !important; 
-        margin-top: 3.5rem !important; 
-        margin-bottom: 1rem !important;
-    }
-    h3 { 
-        font-family: 'Inter', sans-serif !important;
-        color: #004b87 !important; 
-        font-weight: 600 !important; 
-        font-size: 1.1rem !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.05em !important;
-        margin-top: 2.5rem !important;
-    }
+    h1 { font-family: 'Inter', sans-serif !important; color: #111111 !important; font-weight: 700 !important; font-size: 3rem !important; line-height: 1.15 !important; margin-bottom: 1rem !important; letter-spacing: -0.03em !important; }
+    h2 { font-family: 'Inter', sans-serif !important; color: #111111 !important; font-weight: 600 !important; font-size: 1.8rem !important; margin-top: 3.5rem !important; margin-bottom: 1rem !important; }
+    h3 { font-family: 'Inter', sans-serif !important; color: #004b87 !important; font-weight: 600 !important; font-size: 1.1rem !important; text-transform: uppercase !important; letter-spacing: 0.05em !important; margin-top: 2.5rem !important; }
     
-    /* Story Text */
-    p, li { 
-        font-family: 'Lora', serif !important;
-        color: #333333 !important; 
-        font-size: 1.15rem !important; 
-        line-height: 1.8 !important; 
-        margin-bottom: 1.5rem !important;
-    }
+    p, li { font-family: 'Lora', serif !important; color: #333333 !important; font-size: 1.15rem !important; line-height: 1.8 !important; margin-bottom: 1.5rem !important; }
 
-    /* Drop Cap */
-    .drop-cap::first-letter {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 4.5rem !important;
-        font-weight: 700 !important;
-        float: left !important;
-        line-height: 0.8 !important;
-        margin-right: 0.75rem !important;
-        margin-top: 0.4rem !important;
-        color: #004b87 !important; 
-    }
+    .drop-cap::first-letter { font-family: 'Inter', sans-serif !important; font-size: 4.5rem !important; font-weight: 700 !important; float: left !important; line-height: 0.8 !important; margin-right: 0.75rem !important; margin-top: 0.4rem !important; color: #004b87 !important; }
 
-    /* Pull Quote */
-    .pull-quote {
-        font-family: 'Lora', serif !important;
-        font-size: 1.6rem !important;
-        font-style: italic !important;
-        color: #111111 !important;
-        margin: 3rem 0 !important;
-        padding: 1rem 0 1rem 2rem !important;
-        border-left: 4px solid #004b87 !important;
-        line-height: 1.5 !important;
-    }
+    .pull-quote { font-family: 'Lora', serif !important; font-size: 1.6rem !important; font-style: italic !important; color: #111111 !important; margin: 3rem 0 !important; padding: 1rem 0 1rem 2rem !important; border-left: 4px solid #004b87 !important; line-height: 1.5 !important; }
 
-    /* Captions */
-    .caption { 
-        font-family: 'Inter', sans-serif !important;
-        font-size: 0.85rem !important; 
-        color: #888888 !important; 
-        margin-top: 0.5rem !important;
-        margin-bottom: 2.5rem !important; 
-    }
+    .caption { font-family: 'Inter', sans-serif !important; font-size: 0.85rem !important; color: #888888 !important; margin-top: 0.5rem !important; margin-bottom: 2.5rem !important; }
 
-    /* Interactive Section Box */
-    .interactive-box {
-        background-color: #F8F9FA !important;
-        padding: 2rem !important;
-        border-radius: 12px !important;
-        border: 1px solid #E5E7EB !important;
-        margin-top: 2rem !important;
-        margin-bottom: 3rem !important;
-    }
+    .interactive-box { background-color: #F8F9FA !important; padding: 2rem !important; border-radius: 12px !important; border: 1px solid #E5E7EB !important; margin-top: 2rem !important; margin-bottom: 3rem !important; }
     
-    /* Fix Streamlit's native Expander (the dropdown) */
-    .streamlit-expanderHeader {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 1.1rem !important;
-        font-weight: 600 !important;
-        color: #111111 !important;
-        background-color: #F8F9FA !important;
-        border-radius: 8px !important;
-    }
-    .streamlit-expanderContent {
-        background-color: #F8F9FA !important;
-        border: 1px solid #E5E7EB !important;
-        border-top: none !important;
-        border-bottom-left-radius: 8px !important;
-        border-bottom-right-radius: 8px !important;
-        padding: 1.5rem !important;
-    }
+    /* Fix Expander Background and Text Color */
+    [data-testid="stExpander"] { background-color: #F8F9FA !important; border: 1px solid #E5E7EB !important; border-radius: 8px !important; }
+    [data-testid="stExpander"] summary { color: #111111 !important; font-family: 'Inter', sans-serif !important; font-weight: 600 !important; }
+    [data-testid="stExpander"] .katex { color: #111111 !important; font-size: 1.2rem !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -224,10 +145,6 @@ data_df = pd.DataFrame({
 })
 st.dataframe(data_df, use_container_width=True, hide_index=True)
 
-st.markdown("""
-<p>We have four distinct articles competing for your attention: <strong>Politics</strong>, <strong>Sports</strong>, <strong>Tech</strong>, and <strong>Lifestyle</strong>. Each article has hidden "true" parameters. The algorithm's job is to discover the hidden relationship between the user's context and the article's true click probability.</p>
-""", unsafe_allow_html=True)
-
 # --- THE METHOD ---
 st.markdown("<h2>The Method: LinUCB (Linear Upper Confidence Bound)</h2>", unsafe_allow_html=True)
 st.markdown("""
@@ -238,8 +155,6 @@ st.markdown("""
     <li><strong>Exploitation:</strong> Giving you what he is 100% certain you will love (maximizing immediate reward).</li>
     <li><strong>Exploration:</strong> Taking a risk to learn more about your taste (reducing long-term uncertainty).</li>
 </ul>
-
-<p>The specific algorithm we use is <strong>LinUCB</strong>. It maintains a ridge regression model for every single article. When a user arrives, it calculates a score for each article based on their context. It chooses the article with the highest <em>Upper Confidence Bound</em>.</p>
 """, unsafe_allow_html=True)
 
 # --- THE IMPACT ---
@@ -284,10 +199,6 @@ st.markdown("""
 
 # --- INTERACTIVE DEMO ---
 st.markdown("<h2>Try It: The Live Recommendation Engine</h2>", unsafe_allow_html=True)
-st.markdown("""
-<p>Step into the shoes of a user arriving at the <em>Dagens Nyheter</em> homepage. Adjust your profile below and watch how the algorithm's confidence changes in real-time. This is the exact logic running in the backend.</p>
-""", unsafe_allow_html=True)
-
 st.markdown("<div class='interactive-box'>", unsafe_allow_html=True)
 
 col_user, col_ai = st.columns([1, 1.2])
@@ -319,21 +230,41 @@ with col_ai:
 
 st.markdown("</div>", unsafe_allow_html=True)
 
+# --- REAL LIFE APPLICATIONS ---
+st.markdown("<h2>The Industry Standard: Real-Life Applications</h2>", unsafe_allow_html=True)
+st.markdown("""
+<p>Contextual bandits aren't just for news articles. They are the quiet engine behind many of the world's most profitable tech companies. Anywhere a business needs to make a decision with incomplete information—and learns from the outcome—you will find a bandit algorithm.</p>
+
+<h3>1. E-Commerce & Dynamic Pricing</h3>
+<p>Imagine you are visiting an online store. A bandit algorithm can decide in real-time whether to offer you a 10% discount, free shipping, or no discount at all, based on your browsing history (context). If you don't buy, it learns. If you do buy, it learns. It dynamically finds the perfect price point for every unique user.</p>
+
+<h3>2. Healthcare & Clinical Trials</h3>
+<p>In adaptive clinical trials, researchers use bandits to assign patients to the most promising treatment arm. If a new drug is clearly outperforming the placebo, the algorithm shifts more patients into the successful drug group, minimizing the number of patients who receive an ineffective treatment.</p>
+
+<h3>3. Ad Tech & Real-Time Bidding</h3>
+<p>When you load a webpage, an ad exchange has 50 milliseconds to auction off the ad space. Bandit algorithms evaluate your context (IP address, device type, time of day) and decide which ad to bid on to maximize the probability of a click.</p>
+
+<div class='pull-quote'>
+"Contextual bandits are the perfect bridge between the rigorous statistics of A/B testing and the real-time speed of modern machine learning."
+</div>
+""", unsafe_allow_html=True)
+
 # --- TECHNICAL APPENDIX ---
 st.markdown("<h2>Under the Hood</h2>", unsafe_allow_html=True)
 
 with st.expander("View the Mathematics of LinUCB"):
-    # Note the use of $$ for math blocks. This tells Streamlit to use KaTeX!
     st.markdown(r"""
-    For each arm (article) \(a\), LinUCB calculates a score based on the user context \(x_t\):
+    <p style="font-family: 'Inter', sans-serif; font-size: 1rem; color: #333;">For each arm (article) \(a\), LinUCB calculates a score based on the user context \(x_t\):</p>
 
     $$
     Score_a = \underbrace{\hat{\theta}_a^T x_t}_{\text{Exploitation}} + \underbrace{\alpha \sqrt{x_t^T A_a^{-1} x_t}}_{\text{Exploration}}
     $$
 
-    * **\(A_a\)** and **\(b_a\)** are matrices updated online using ridge regression.
-    * **\(\alpha\)** controls the exploration bonus. Higher \(\alpha\) forces the model to explore uncertain articles.
-    * **\(\lambda\)** is the regularization parameter (default \(1.0\)).
-    """)
+    <ul style="font-family: 'Inter', sans-serif; font-size: 1rem; color: #333;">
+        <li><b>\(A_a\)</b> and <b>\(b_a\)</b> are matrices updated online using ridge regression.</li>
+        <li><b>\(\alpha\)</b> controls the exploration bonus. Higher \(\alpha\) forces the model to explore uncertain articles.</li>
+        <li><b>\(\lambda\)</b> is the regularization parameter (default \(1.0\)).</li>
+    </ul>
+    """, unsafe_allow_html=True)
 
 st.markdown("<br><br><p style='text-align: center; color: #888; font-family: Inter; font-size: 0.9rem;'>Written by Prashant Kumar Singh | MSc Data Science, Stockholm University</p>", unsafe_allow_html=True)
