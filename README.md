@@ -1,129 +1,36 @@
-# Contextual Bandit News Recommendation
+# The Stockholm Personalization Problem
 
-Implements and compares bandit algorithms for personalized news recommendation.
-A user arrives with a context vector (preferences + age), and the agent must
-learn which article to recommend to maximize click-through rate over time.
+**🔗 Live Interactive Demo:** [https://contextual-bandit-news-recommendation-7blaqnuabh25udhvjkh4xe.streamlit.app/]
 
----
+A Contextual Bandit (LinUCB) recommendation engine designed to solve the "NewsNet" morning problem: showing users the right news article based on their real-time behavior, without invasive tracking.
 
-## Problem Setup
+## The Problem
+Traditional A/B testing is too slow for fast-moving news cycles. By the time a test reaches statistical significance, the news has changed. Furthermore, static A/B tests incur massive "regret" (lost clicks) by serving sub-optimal articles to half the audience.
 
-Each time step a user arrives with a 6-dimensional context:
+## The Solution
+We implemented **LinUCB (Linear Upper Confidence Bound)**, which balances *exploitation* (showing what we know works) and *exploration* (testing new articles to learn user preferences).
 
-| Feature | Description |
-|---|---|
-| `likes_politics` | Interest in political content |
-| `sports_fan` | Interest in sports |
-| `techie` | Interest in technology |
-| `mobile_user` | Tends to read on mobile |
-| `morning_reader` | Reads in the morning |
-| `age_z` | Standardized age: (age − 40) / 15 |
+- **Context Vector (d=6):** Political interest, Sports interest, Tech interest, Mobile usage, Morning reader score, Standardized age.
+- **Arms (k=4):** Politics, Sports, Tech, Lifestyle.
 
-There are 4 articles (arms): **Politics, Sports, Tech, Lifestyle**.
+## Results (5,000 Simulated Sessions)
+| Algorithm | Avg CTR | Cumulative Regret (Lost Clicks) |
+| :--- | :--- | :--- |
+| Random Baseline | 78.9% | 866 |
+| ε-Greedy (ε=0.1) | 93.7% | 187 |
+| **LinUCB (α=1.0)** | **95.8%** | **36** |
 
-Click probability follows a logistic model:
-```
-P(click | arm a, context x) = sigmoid(θ_a · x)
-```
+*LinUCB achieved 24x less regret than random guessing by exploring intelligently based on feature uncertainty.*
 
-The agent observes the reward (click=1 / no click=0) and updates its policy.
+## Architecture
+- **Algorithm:** Per-arm ridge regression with UCB exploration bonus.
+- **Frontend:** Streamlit (custom CSS for a magazine-style editorial layout).
+- **Visualization:** Plotly (interactive charts).
+- **Deployment:** Streamlit Community Cloud.
 
----
-
-## Algorithms
-
-### Part 1 — Non-Contextual Bandits
-Classic multi-armed bandit setting: no context, fixed unknown click probabilities.
-
-| Algorithm | Idea |
-|---|---|
-| **ε-Greedy** | Exploit best-known arm with prob 1−ε; explore randomly with prob ε |
-| **UCB1** | Pick arm maximizing Q[a] + c·√(ln t / N[a]); optimism under uncertainty |
-
-### Part 2 — Contextual Bandits
-User context is available at each step. Algorithms learn a personalized mapping.
-
-| Algorithm | Idea |
-|---|---|
-| **Random** | Uniform random baseline, ignores context |
-| **Contextual ε-Greedy** | Linear model per arm; ε-greedy on predicted reward |
-| **LinUCB** | Ridge regression per arm + UCB exploration bonus on feature uncertainty |
-
----
-
-## Results
-
-### Part 1: Non-Contextual (T = 10,000, probs = [0.2, 0.1, 0.5, 0.9])
-
-| Algorithm | Total Reward | Avg Reward | Cumulative Regret |
-|---|---|---|---|
-| ε-Greedy (ε=0.1) | 8,494 | 0.849 | 487.7 |
-| **UCB (c=1.0)** | **8,959** | **0.896** | **40.7** |
-
-UCB accumulates **12× less regret** than ε-greedy by efficiently targeting
-high-uncertainty arms early, then concentrating on the best arm.
-
-### Part 2: Contextual (T = 20,000)
-
-| Algorithm | Total Reward | Avg Reward | Cumulative Regret |
-|---|---|---|---|
-| Random | 15,792 | 0.790 | 3,440.2 |
-| Contextual ε-Greedy (ε=0.1) | 18,793 | 0.940 | 501.6 |
-| **LinUCB (α=1.0)** | **19,216** | **0.961** | **56.1** |
-
-LinUCB achieves **61× less regret than random** and **9× less than ε-greedy**
-by maintaining principled uncertainty estimates over the feature space.
-
-![Part 2 Results](results/part2_contextual.png)
-
----
-
-## Project Structure
-
-```
-contextual-bandit-news-recommendation/
-├── environment.py    # BernoulliBandit and ContextualNewsEnv
-├── policies.py       # ε-Greedy, UCB, ContextualEpsGreedy, LinUCB
-├── simulate.py       # simulation runners and comparison helper
-├── visualize.py      # plotting functions
-├── main.py           # entry point — runs all experiments
-├── requirements.txt
-└── notebooks/
-    └── contextual-bandit-news-recommendation.ipynb    # original step-by-step notebook
-```
-
----
-
-## Getting Started
-
+## How to Run Locally
 ```bash
-git clone https://github.com/PrashantSU/contextual-bandit-news-recommendation
-cd contextual-bandit-news-recommendation
+git clone https://github.com/PrashantSU/Contextual-bandit-news-recommendation.git
+cd Contextual-bandit-news-recommendation
 pip install -r requirements.txt
-python main.py
-```
-
-Results and plots are saved to `results/`.
-
----
-
-## Key Takeaways
-
-- **Exploration strategy matters significantly**: UCB reduces regret by 12× over
-  ε-greedy in the non-contextual setting by adapting exploration to uncertainty.
-- **Context dramatically improves performance**: contextual policies achieve
-  avg reward of 0.96 vs 0.79 for a context-blind random policy.
-- **LinUCB's principled uncertainty quantification** via the inverse gram matrix
-  allows it to identify the best arm per user segment much faster than
-  heuristic exploration.
-
----
-
-## References
-
-- Li, L., Chu, W., Langford, J., & Schapire, R. E. (2010).
-  *A contextual-bandit approach to personalized news article recommendation.*
-  WWW 2010. [arXiv:1003.0146](https://arxiv.org/abs/1003.0146)
-- Auer, P., Cesa-Bianchi, N., & Fischer, P. (2002).
-  *Finite-time analysis of the multiarmed bandit problem.*
-  Machine Learning, 47(2–3), 235–256.
+streamlit run streamlit_app.py
