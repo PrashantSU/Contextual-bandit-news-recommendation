@@ -13,17 +13,14 @@ st.set_page_config(page_title="The Stockholm Personalization Problem", page_icon
 
 st.markdown("""
 <style>
-    /* 1. Import a Serif font for the magazine feel */
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap');
 
-    /* 2. Global Layout & Typography */
     .block-container { 
         padding-top: 3rem; 
         padding-bottom: 5rem; 
-        max-width: 900px; /* Narrower, like a magazine column */
+        max-width: 900px; 
     }
     
-    /* 3. The Serif Body Text */
     p { 
         font-family: 'Inter', sans-serif;
         color: #1a1a1a; 
@@ -33,7 +30,6 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
     
-    /* 4. The Editorial Headlines */
     h1 { 
         font-family: 'Playfair Display', serif;
         color: #000000; 
@@ -55,7 +51,7 @@ st.markdown("""
     }
     h3 { 
         font-family: 'Inter', sans-serif;
-        color: #004b87; /* Swedish flag blue */
+        color: #004b87; 
         font-weight: 600; 
         font-size: 1.2rem;
         text-transform: uppercase;
@@ -63,7 +59,6 @@ st.markdown("""
         margin-top: 2rem;
     }
 
-    /* 5. Drop Cap (The large first letter) */
     .drop-cap::first-letter {
         font-family: 'Playfair Display', serif;
         font-size: 4.5rem;
@@ -75,7 +70,6 @@ st.markdown("""
         color: #000000;
     }
 
-    /* 6. Pull Quote */
     .pull-quote {
         font-family: 'Playfair Display', serif;
         font-size: 1.8rem;
@@ -83,18 +77,13 @@ st.markdown("""
         color: #333;
         margin: 3rem 0;
         padding-left: 2rem;
-        border-left: 4px solid #004b87; /* Swedish blue accent */
+        border-left: 4px solid #004b87;
         line-height: 1.4;
     }
 
-    /* 7. Images */
     img { border-radius: 4px; margin-bottom: 0.5rem; }
     .caption { font-size: 0.85rem; color: #666; font-family: 'Inter', sans-serif; margin-bottom: 2rem; }
 
-    /* 8. Data & Charts */
-    .stDataFrame { font-family: 'Inter', sans-serif; }
-    
-    /* 9. The Interactive Box */
     .interactive-box {
         background-color: #f8f9fa;
         padding: 2rem;
@@ -146,8 +135,6 @@ with st.spinner("Loading simulation..."):
 # -----------------------------------------------------------------------------
 # 3. THE EDITORIAL STORY
 # -----------------------------------------------------------------------------
-
-# --- THE HOOK ---
 st.markdown("<h1>It’s 07:30 on the Tunnelbana.</h1>", unsafe_allow_html=True)
 st.markdown("<p class='caption'>Stockholm, Sweden. Photo: Unsplash</p>", unsafe_allow_html=True)
 st.image("https://images.unsplash.com/photo-1509356843151-3e7d96241e11?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", use_container_width=True)
@@ -167,7 +154,6 @@ For the past week, you’ve been following a story about rising electricity pric
 <p>Bonnier News, the publisher behind <em>Dagens Nyheter</em>, <em>Expressen</em>, and <em>Dagens Industri</em>, has stated that personalization is their next big challenge. They found that readers often feel the experience is “clunky” and that content is not optimized for their interests. With a digital subscriber base of over 2 million, even a small improvement in click-through rates (CTR) translates to significant revenue. But how do you personalize a homepage for millions of unique readers without invasive tracking or complicated A/B tests?</p>
 """, unsafe_allow_html=True)
 
-# --- THE DATA ---
 st.markdown("<h2>The Data: What the Algorithm Sees</h2>", unsafe_allow_html=True)
 st.markdown("""
 <p>Before we recommend an article, the system observes a 6-dimensional context vector. It doesn't know your name, your political views, or your email address. It only knows your behavioral footprint from this session.</p>
@@ -186,7 +172,6 @@ st.markdown("""
 <p>We have four distinct articles competing for the user's attention: <strong>Politics</strong>, <strong>Sports</strong>, <strong>Tech</strong>, and <strong>Lifestyle</strong>. Each has hidden features. The algorithm's job is to discover the hidden relationship between the user's context and the article's true click probability.</p>
 """, unsafe_allow_html=True)
 
-# --- THE METHOD ---
 st.markdown("<h2>The Method: LinUCB (Contextual Bandits)</h2>", unsafe_allow_html=True)
 st.markdown("""
 <p>Traditional A/B testing is too slow for a news cycle. By the time you serve 50,000 users a test to see if Sports beats Politics, the news has changed.</p>
@@ -206,7 +191,6 @@ st.markdown("""
 <p>The formula looks like this: <code>Score = (Expected Reward) + α × (Uncertainty Bonus)</code>. The α parameter is our exploration dial. If α is high, the algorithm takes risks. If α is low, it plays it safe.</p>
 """, unsafe_allow_html=True)
 
-# --- THE IMPACT ---
 st.markdown("<h2>The Impact: 24x Less Regret</h2>", unsafe_allow_html=True)
 st.markdown("""
 <p>We simulated 5,000 user sessions to compare LinUCB against two baselines: a Random policy (showing random articles) and a standard ε-Greedy policy (exploring randomly 10% of the time).</p>
@@ -223,7 +207,6 @@ col2.metric("LinUCB Regret", f"{np.sum(results['ucb']['regret']):,.0f}", "Lowest
 col3.metric("ε-Greedy Regret", f"{np.sum(results['eps']['regret']):,.0f}", "Baseline", delta_color="inverse")
 col4.metric("Random Regret", f"{np.sum(results['random']['regret']):,.0f}", "Baseline", delta_color="inverse")
 
-# Charts (Magazine Style)
 col_c1, col_c2 = st.columns(2)
 steps = np.arange(1, 5001)
 
@@ -247,7 +230,6 @@ st.markdown("""
 <p>By exploring intelligently, LinUCB learned 24 times faster than random guessing. It didn't waste clicks showing Sports to a Politics reader just to gather data.</p>
 """, unsafe_allow_html=True)
 
-# --- INTERACTIVE DEMO ---
 st.markdown("<h2>Try It: The Live Recommendation Engine</h2>", unsafe_allow_html=True)
 st.markdown("""
 <p>Adjust the sliders below to simulate a user arriving at the <em>Dagens Nyheter</em> homepage. Watch how the algorithm's confidence changes in real-time.</p>
@@ -284,10 +266,11 @@ with col_ai:
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# --- TECHNICAL APPENDIX ---
 st.markdown("<h2>Under the Hood</h2>", unsafe_allow_html=True)
+
+# NOTE: The r""" here is critical to prevent the unicode error!
 with st.expander("View the Mathematics of LinUCB"):
-    st.markdown("""
+    st.markdown(r"""
     For each arm (article) \(a\), LinUCB calculates a score based on the user context \(x_t\):
     
     \[
