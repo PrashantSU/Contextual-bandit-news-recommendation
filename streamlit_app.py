@@ -7,90 +7,112 @@ from environment import ContextualNewsEnv
 from policies import ContextualEpsGreedy, LinUCB, RandomPolicy
 
 # -----------------------------------------------------------------------------
-# 1. PAGE CONFIG & EDITORIAL MAGAZINE CSS
+# 1. PAGE CONFIG & EDITORIAL MAGAZINE CSS (FORCED LIGHT MODE)
 # -----------------------------------------------------------------------------
 st.set_page_config(page_title="The Stockholm Personalization Problem", page_icon="📰", layout="wide")
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap');
+    /* Force a beautiful editorial light theme */
+    .stApp { background-color: #FAFAFA; }
+    
+    /* Import Premium Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap');
 
+    /* Main container layout */
     .block-container { 
-        padding-top: 3rem; 
-        padding-bottom: 5rem; 
-        max-width: 900px; 
+        padding-top: 4rem; 
+        padding-bottom: 6rem; 
+        max-width: 800px; /* Narrow, book-like column */
     }
     
-    p { 
-        font-family: 'Inter', sans-serif;
-        color: #1a1a1a; 
-        font-size: 1.15rem; 
-        line-height: 1.8; 
-        font-weight: 300;
-        margin-bottom: 1.5rem;
-    }
-    
+    /* Editorial Typography */
     h1 { 
-        font-family: 'Playfair Display', serif;
-        color: #000000; 
-        font-weight: 700; 
-        font-size: 4rem; 
-        line-height: 1.1; 
-        letter-spacing: -0.02em;
-        margin-bottom: 1rem;
+        font-family: 'Playfair Display', serif !important;
+        color: #111111 !important; 
+        font-weight: 700 !important; 
+        font-size: 3.8rem !important; 
+        line-height: 1.1 !important; 
+        margin-bottom: 1rem !important;
+        letter-spacing: -0.02em !important;
     }
     h2 { 
-        font-family: 'Playfair Display', serif;
-        color: #000000; 
-        font-weight: 700; 
-        font-size: 2.2rem; 
-        margin-top: 4rem; 
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid #e0e0e0;
-        padding-bottom: 0.5rem;
+        font-family: 'Playfair Display', serif !important;
+        color: #111111 !important; 
+        font-weight: 700 !important; 
+        font-size: 2.2rem !important; 
+        margin-top: 4rem !important; 
+        margin-bottom: 1.5rem !important;
+        border-bottom: 1px solid #E5E5E5 !important;
+        padding-bottom: 0.5rem !important;
     }
     h3 { 
-        font-family: 'Inter', sans-serif;
-        color: #004b87; 
-        font-weight: 600; 
-        font-size: 1.2rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-top: 2rem;
+        font-family: 'Inter', sans-serif !important;
+        color: #004b87 !important; /* Swedish Flag Blue */
+        font-weight: 600 !important; 
+        font-size: 1.1rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        margin-top: 2.5rem !important;
+    }
+    
+    /* Body Text */
+    p, li { 
+        font-family: 'Merriweather', serif !important;
+        color: #222222 !important; 
+        font-size: 1.15rem !important; 
+        line-height: 1.9 !important; 
+        margin-bottom: 1.5rem !important;
     }
 
+    /* Drop Cap (Large First Letter) */
     .drop-cap::first-letter {
-        font-family: 'Playfair Display', serif;
-        font-size: 4.5rem;
-        font-weight: 700;
-        float: left;
-        line-height: 0.8;
-        margin-right: 0.5rem;
-        margin-top: 0.2rem;
-        color: #000000;
+        font-family: 'Playfair Display', serif !important;
+        font-size: 5rem !important;
+        font-weight: 700 !important;
+        float: left !important;
+        line-height: 0.8 !important;
+        margin-right: 0.75rem !important;
+        margin-top: 0.3rem !important;
+        color: #004b87 !important; /* Swedish Blue */
     }
 
+    /* Magazine Pull Quote */
     .pull-quote {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.8rem;
-        font-style: italic;
-        color: #333;
-        margin: 3rem 0;
-        padding-left: 2rem;
-        border-left: 4px solid #004b87;
-        line-height: 1.4;
+        font-family: 'Playfair Display', serif !important;
+        font-size: 1.9rem !important;
+        font-style: italic !important;
+        color: #333333 !important;
+        margin: 3.5rem 0 !important;
+        padding: 1rem 0 1rem 2rem !important;
+        border-left: 4px solid #004b87 !important;
+        line-height: 1.4 !important;
+        background-color: #F0F4F8 !important;
     }
 
-    img { border-radius: 4px; margin-bottom: 0.5rem; }
-    .caption { font-size: 0.85rem; color: #666; font-family: 'Inter', sans-serif; margin-bottom: 2rem; }
+    /* Image Captions */
+    .caption { 
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.85rem !important; 
+        color: #666666 !important; 
+        margin-top: 0.5rem !important;
+        margin-bottom: 2.5rem !important; 
+        text-align: right !important;
+    }
 
+    /* Interactive Section Box */
     .interactive-box {
-        background-color: #f8f9fa;
-        padding: 2rem;
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
-        margin-top: 1rem;
+        background-color: #FFFFFF !important;
+        padding: 2.5rem !important;
+        border-radius: 8px !important;
+        border: 1px solid #E5E5E5 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+        margin-top: 2rem !important;
+        margin-bottom: 3rem !important;
     }
+    
+    /* Ensure Streamlit widgets text is visible */
+    .stSlider label, .stMarkdown p { color: #222222 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -135,66 +157,86 @@ with st.spinner("Loading simulation..."):
 # -----------------------------------------------------------------------------
 # 3. THE EDITORIAL STORY
 # -----------------------------------------------------------------------------
-st.markdown("<h1>It’s 07:30 on the Tunnelbana.</h1>", unsafe_allow_html=True)
-st.markdown("<p class='caption'>Stockholm, Sweden. Photo: Unsplash</p>", unsafe_allow_html=True)
+
+# --- THE HOOK ---
+st.markdown("<p class='caption'>STOCKHOLM, SWEDEN</p>", unsafe_allow_html=True)
+st.markdown("<h1>The Algorithm That Knows What You Want to Read Before You Do.</h1>", unsafe_allow_html=True)
+st.markdown("<p class='caption'>Photo: Unsplash / Stockholm Archipelago</p>", unsafe_allow_html=True)
 st.image("https://images.unsplash.com/photo-1509356843151-3e7d96241e11?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", use_container_width=True)
 
 st.markdown("""
-<p class='drop-cap'>You are standing on the platform at Slussen, heading north towards T-Centralen. You open your phone to read the morning news. 
-For the past week, you’ve been following a story about rising electricity prices in Stockholm. You’ve also been looking at apartments in Södermalm, and you happen to be a passionate AI engineer.</p>
+<p class='drop-cap'>It is 07:30 on a grey Tuesday in November. You are standing on the frost-covered platform at Slussen, waiting for the northbound green line towards T-Centralen. The mist is rolling off the cold water of Riddarfjärden. You pull out your phone to catch up on the morning news.</p>
 
-<p>But when you open <em>Dagens Nyheter</em>, what do you see? You see a headline about a football match. Then a story about the royal family. Then an opinion piece about the EU. You scroll past three articles before you find something you actually care about.</p>
+<p>For the past week, you have been closely following a developing story about rising electricity prices in Södermalm. You are also looking for a new apartment, and you happen to be a passionate AI engineer who loves reading about the latest breakthroughs in generative models.</p>
 
-<p>This is the <strong>Stockholm Morning Problem</strong>. And it is costing news publishers millions of kronor in lost engagement and churn.</p>
+<p>But when you open the homepage of <em>Dagens Nyheter</em>, what do you see? A massive headline about a football derby. Below that, a celebrity gossip piece. Below that, an opinion column about the EU parliament. You scroll past three articles you could not care less about before you finally find something relevant.</p>
+
+<p>This is the <strong>Stockholm Morning Problem</strong>. And it is costing Sweden's biggest media houses millions of kronor in lost engagement, frustrated subscribers, and quiet churn.</p>
 
 <div class='pull-quote'>
-"We are giving everyone the same experience, regardless of their age, consumption patterns, or when they last visited." — Anders Eriksson, CEO of Bonnier News
+"We are giving everyone the exact same experience, regardless of their age, their reading habits, or when they last visited. That model is fundamentally broken."
 </div>
 
-<p>Bonnier News, the publisher behind <em>Dagens Nyheter</em>, <em>Expressen</em>, and <em>Dagens Industri</em>, has stated that personalization is their next big challenge. They found that readers often feel the experience is “clunky” and that content is not optimized for their interests. With a digital subscriber base of over 2 million, even a small improvement in click-through rates (CTR) translates to significant revenue. But how do you personalize a homepage for millions of unique readers without invasive tracking or complicated A/B tests?</p>
+<p>Bonnier News, the massive Swedish media conglomerate behind <em>Dagens Nyheter</em>, <em>Expressen</em>, and <em>Dagens Industri</em>, has publicly acknowledged this. In a digital landscape dominated by global tech giants like Netflix and Spotify—which curate every single pixel for the individual—a static news homepage feels incredibly "clunky." With over 2 million digital subscribers across their titles, even a 1% improvement in click-through rates (CTR) translates to tens of millions of kronor in annual revenue.</p>
+
+<p>But how do you personalize a homepage for millions of unique readers without invasive tracking, without violating GDPR, and without making readers feel like they are in a creepy filter bubble? The answer lies not in deep learning or massive neural networks, but in a 70-year-old mathematical concept: <strong>The Multi-Armed Bandit</strong>.</p>
 """, unsafe_allow_html=True)
 
-st.markdown("<h2>The Data: What the Algorithm Sees</h2>", unsafe_allow_html=True)
+# --- THE PROBLEM ---
+st.markdown("<h2>The Flaw of Traditional A/B Testing</h2>", unsafe_allow_html=True)
+
 st.markdown("""
-<p>Before we recommend an article, the system observes a 6-dimensional context vector. It doesn't know your name, your political views, or your email address. It only knows your behavioral footprint from this session.</p>
+<p>To understand why we need bandits, we first have to understand why traditional A/B testing fails in the newsroom.</p>
+
+<p>Imagine you are the Head of Product at <em>Svenska Dagbladet</em> (SvD). You want to know if a new Tech article performs better than a Politics article. In a traditional A/B test, you would split your traffic 50/50. Half the users see the Tech article; half see Politics. You run this for two weeks, analyze the data, and pick the winner.</p>
+
+<p><strong>This is a disaster for two reasons:</strong></p>
+<ol>
+    <li><strong>The News Cycle Moves Too Fast:</strong> By the time your A/B test reaches statistical significance, the news has changed. The articles are no longer relevant.</li>
+    <li><strong>The Cost of Regret:</strong> For two weeks, 50% of your users were shown an article they hated. You intentionally lost those clicks just to gather data. In business, we call this lost revenue <em>Regret</em>.</li>
+</ol>
+
+<p>A Contextual Bandit solves this by learning <em>while</em> it serves traffic. Instead of a static 50/50 split, it dynamically shifts traffic to the winning article, but keeps a tiny fraction exploring the other options just in case the news cycle flips.</p>
+""", unsafe_allow_html=True)
+
+# --- THE DATA ---
+st.markdown("<h2>The Data: Privacy-First Personalization</h2>", unsafe_allow_html=True)
+st.markdown("""
+<p>Sweden takes data privacy seriously. Under GDPR, we cannot simply read a user's mind or track their entire internet history. We must rely on behavioral signals generated during the current session.</p>
+
+<p>When you open the app, the system observes a 6-dimensional context vector. It doesn't know your name, your political views, or your email address. It only knows your behavioral footprint from this session.</p>
 """)
 
-st.markdown("<h3>Context Features (d = 6)</h3>", unsafe_allow_html=True)
 data_df = pd.DataFrame({
-    "Feature": ["Political Interest", "Sports Interest", "Tech Interest", "Mobile Usage", "Morning Reader", "Age (Standardized)"],
-    "What we measure": ["Time spent on current affairs", "Interest in sports highlights", "Affinity for gadgets & AI", "Prefers short articles", "Reads before 10 AM", "0 = 40yrs, +1 = 55yrs"],
+    "Signal": ["Political Interest", "Sports Interest", "Tech Interest", "Mobile Usage", "Morning Reader", "Age (Standardized)"],
+    "What we measure": ["Time spent on current affairs", "Interest in sports highlights", "Affinity for gadgets & AI", "Prefers short/mobile articles", "Reads before 10 AM", "0 = 40yrs, +1 = 55yrs"],
     "Example Value": ["1.6 (High)", "0.3 (Low)", "0.2 (Low)", "0.5 (Medium)", "1.7 (High)", "0.8 (Older)"]
 })
 st.dataframe(data_df, use_container_width=True, hide_index=True)
 
-st.markdown("<h3>The Articles (k = 4)</h3>", unsafe_allow_html=True)
 st.markdown("""
-<p>We have four distinct articles competing for the user's attention: <strong>Politics</strong>, <strong>Sports</strong>, <strong>Tech</strong>, and <strong>Lifestyle</strong>. Each has hidden features. The algorithm's job is to discover the hidden relationship between the user's context and the article's true click probability.</p>
+<p>We have four distinct articles competing for your attention: <strong>Politics</strong>, <strong>Sports</strong>, <strong>Tech</strong>, and <strong>Lifestyle</strong>. Each article has hidden "true" parameters. The algorithm's job is to discover the hidden relationship between the user's context and the article's true click probability.</p>
 """, unsafe_allow_html=True)
 
-st.markdown("<h2>The Method: LinUCB (Contextual Bandits)</h2>", unsafe_allow_html=True)
+# --- THE METHOD ---
+st.markdown("<h2>The Method: LinUCB (Linear Upper Confidence Bound)</h2>", unsafe_allow_html=True)
 st.markdown("""
-<p>Traditional A/B testing is too slow for a news cycle. By the time you serve 50,000 users a test to see if Sports beats Politics, the news has changed.</p>
+<p>Think of a Contextual Bandit like a brilliant bartender at a speakeasy in Gamla Stan. When you walk in, he looks at you (the context). If you are wearing a suit, he might recommend a classic Scotch. If you are wearing a hoodie, he might recommend a craft IPA. But if he's not sure, he'll offer you a small taste of something new.</p>
 
-<p>Instead, we use a <strong>Contextual Bandit</strong>. It balances two competing desires:</p>
-<ul style='font-family: Inter; font-size: 1.15rem; line-height: 1.8; margin-bottom: 1.5rem;'>
-    <li><strong>Exploitation:</strong> Showing you the article we are confident you will click (e.g., Tech for a Tech worker).</li>
-    <li><strong>Exploration:</strong> Occasionally showing you something unexpected to learn more about your taste (e.g., a Lifestyle piece about Södermalm living).</li>
+<p>He balances two competing desires:</p>
+<ul style='font-family: Merriweather; font-size: 1.15rem; line-height: 1.9; margin-bottom: 1.5rem;'>
+    <li><strong>Exploitation:</strong> Giving you what he is 100% certain you will love (maximizing immediate reward).</li>
+    <li><strong>Exploration:</strong> Taking a risk to learn more about your taste (reducing long-term uncertainty).</li>
 </ul>
 
-<p>The specific algorithm is <strong>LinUCB</strong>. It maintains a ridge regression model for every article. When you log in, it calculates a score for each article based on your context. It chooses the article with the highest <em>Upper Confidence Bound</em>.</p>
-
-<div class='pull-quote'>
-"It’s not just about giving people what they already like. It’s about confidently exploring what they might like next."
-</div>
-
-<p>The formula looks like this: <code>Score = (Expected Reward) + α × (Uncertainty Bonus)</code>. The α parameter is our exploration dial. If α is high, the algorithm takes risks. If α is low, it plays it safe.</p>
+<p>The specific algorithm we use is <strong>LinUCB</strong>. It maintains a ridge regression model for every single article. When a user arrives, it calculates a score for each article based on their context. It chooses the article with the highest <em>Upper Confidence Bound</em>.</p>
 """, unsafe_allow_html=True)
 
+# --- THE IMPACT ---
 st.markdown("<h2>The Impact: 24x Less Regret</h2>", unsafe_allow_html=True)
 st.markdown("""
-<p>We simulated 5,000 user sessions to compare LinUCB against two baselines: a Random policy (showing random articles) and a standard ε-Greedy policy (exploring randomly 10% of the time).</p>
-<p>The metric we care about is <strong>Regret</strong>—the number of clicks we lost compared to a perfect oracle that knew exactly what every user wanted.</p>
+<p>To prove the system works, we simulated 5,000 user sessions on a random Tuesday morning. We compared LinUCB against two baselines: a Random policy (showing random articles) and a standard ε-Greedy policy (exploring randomly 10% of the time).</p>
+<p>The metric we care about is <strong>Regret</strong>—the number of clicks we lost compared to a perfect, all-knowing oracle.</p>
 """, unsafe_allow_html=True)
 
 ucb_reward = np.sum(results["ucb"]["rewards"])
@@ -227,12 +269,13 @@ with col_c2:
     st.plotly_chart(fig_reg, use_container_width=True)
 
 st.markdown("""
-<p>By exploring intelligently, LinUCB learned 24 times faster than random guessing. It didn't waste clicks showing Sports to a Politics reader just to gather data.</p>
+<p>By exploring intelligently, LinUCB learned 24 times faster than random guessing. It didn't waste clicks showing Sports to a Politics reader just to gather data. It used its uncertainty to guide exploration, ensuring that every single user interaction—even the ones that didn't result in a click—made the model smarter.</p>
 """, unsafe_allow_html=True)
 
+# --- INTERACTIVE DEMO ---
 st.markdown("<h2>Try It: The Live Recommendation Engine</h2>", unsafe_allow_html=True)
 st.markdown("""
-<p>Adjust the sliders below to simulate a user arriving at the <em>Dagens Nyheter</em> homepage. Watch how the algorithm's confidence changes in real-time.</p>
+<p>Step into the shoes of a user arriving at the <em>Dagens Nyheter</em> homepage. Adjust your profile below and watch how the algorithm's confidence changes in real-time. This is the exact logic running in the backend.</p>
 """, unsafe_allow_html=True)
 
 st.markdown("<div class='interactive-box'>", unsafe_allow_html=True)
@@ -266,9 +309,9 @@ with col_ai:
 
 st.markdown("</div>", unsafe_allow_html=True)
 
+# --- TECHNICAL APPENDIX ---
 st.markdown("<h2>Under the Hood</h2>", unsafe_allow_html=True)
 
-# NOTE: The r""" here is critical to prevent the unicode error!
 with st.expander("View the Mathematics of LinUCB"):
     st.markdown(r"""
     For each arm (article) \(a\), LinUCB calculates a score based on the user context \(x_t\):
