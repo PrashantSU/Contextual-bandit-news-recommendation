@@ -7,48 +7,46 @@ from environment import ContextualNewsEnv
 from policies import ContextualEpsGreedy, LinUCB, RandomPolicy
 
 # -----------------------------------------------------------------------------
-# 1. PAGE CONFIG & EDITORIAL MAGAZINE CSS (FORCED LIGHT MODE)
+# 1. PAGE CONFIG & MODERN BLOG CSS
 # -----------------------------------------------------------------------------
 st.set_page_config(page_title="The Stockholm Personalization Problem", page_icon="📰", layout="wide")
 
 st.markdown("""
 <style>
-    /* Force a beautiful editorial light theme */
-    .stApp { background-color: #FAFAFA; }
+    /* Force clean white background */
+    .stApp { background-color: #FFFFFF; }
     
-    /* Import Premium Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap');
+    /* Import Premium Blog Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
 
-    /* Main container layout */
+    /* Main container layout - Narrow, readable column */
     .block-container { 
         padding-top: 4rem; 
         padding-bottom: 6rem; 
-        max-width: 800px; /* Narrow, book-like column */
+        max-width: 760px; 
     }
     
-    /* Editorial Typography */
+    /* Typography */
     h1 { 
-        font-family: 'Playfair Display', serif !important;
+        font-family: 'Inter', sans-serif !important;
         color: #111111 !important; 
         font-weight: 700 !important; 
-        font-size: 3.8rem !important; 
-        line-height: 1.1 !important; 
+        font-size: 3rem !important; 
+        line-height: 1.15 !important; 
         margin-bottom: 1rem !important;
-        letter-spacing: -0.02em !important;
+        letter-spacing: -0.03em !important;
     }
     h2 { 
-        font-family: 'Playfair Display', serif !important;
+        font-family: 'Inter', sans-serif !important;
         color: #111111 !important; 
-        font-weight: 700 !important; 
-        font-size: 2.2rem !important; 
-        margin-top: 4rem !important; 
-        margin-bottom: 1.5rem !important;
-        border-bottom: 1px solid #E5E5E5 !important;
-        padding-bottom: 0.5rem !important;
+        font-weight: 600 !important; 
+        font-size: 1.8rem !important; 
+        margin-top: 3.5rem !important; 
+        margin-bottom: 1rem !important;
     }
     h3 { 
         font-family: 'Inter', sans-serif !important;
-        color: #004b87 !important; /* Swedish Flag Blue */
+        color: #004b87 !important; 
         font-weight: 600 !important; 
         font-size: 1.1rem !important;
         text-transform: uppercase !important;
@@ -56,63 +54,75 @@ st.markdown("""
         margin-top: 2.5rem !important;
     }
     
-    /* Body Text */
+    /* Story Text */
     p, li { 
-        font-family: 'Merriweather', serif !important;
-        color: #222222 !important; 
+        font-family: 'Lora', serif !important;
+        color: #333333 !important; 
         font-size: 1.15rem !important; 
-        line-height: 1.9 !important; 
+        line-height: 1.8 !important; 
         margin-bottom: 1.5rem !important;
     }
 
-    /* Drop Cap (Large First Letter) */
+    /* Drop Cap */
     .drop-cap::first-letter {
-        font-family: 'Playfair Display', serif !important;
-        font-size: 5rem !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 4.5rem !important;
         font-weight: 700 !important;
         float: left !important;
         line-height: 0.8 !important;
         margin-right: 0.75rem !important;
-        margin-top: 0.3rem !important;
-        color: #004b87 !important; /* Swedish Blue */
+        margin-top: 0.4rem !important;
+        color: #004b87 !important; 
     }
 
-    /* Magazine Pull Quote */
+    /* Pull Quote */
     .pull-quote {
-        font-family: 'Playfair Display', serif !important;
-        font-size: 1.9rem !important;
+        font-family: 'Lora', serif !important;
+        font-size: 1.6rem !important;
         font-style: italic !important;
-        color: #333333 !important;
-        margin: 3.5rem 0 !important;
+        color: #111111 !important;
+        margin: 3rem 0 !important;
         padding: 1rem 0 1rem 2rem !important;
         border-left: 4px solid #004b87 !important;
-        line-height: 1.4 !important;
-        background-color: #F0F4F8 !important;
+        line-height: 1.5 !important;
     }
 
-    /* Image Captions */
+    /* Captions */
     .caption { 
         font-family: 'Inter', sans-serif !important;
         font-size: 0.85rem !important; 
-        color: #666666 !important; 
+        color: #888888 !important; 
         margin-top: 0.5rem !important;
         margin-bottom: 2.5rem !important; 
-        text-align: right !important;
     }
 
     /* Interactive Section Box */
     .interactive-box {
-        background-color: #FFFFFF !important;
-        padding: 2.5rem !important;
-        border-radius: 8px !important;
-        border: 1px solid #E5E5E5 !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+        background-color: #F8F9FA !important;
+        padding: 2rem !important;
+        border-radius: 12px !important;
+        border: 1px solid #E5E7EB !important;
         margin-top: 2rem !important;
         margin-bottom: 3rem !important;
     }
     
-    /* Ensure Streamlit widgets text is visible */
-    .stSlider label, .stMarkdown p { color: #222222 !important; }
+    /* Fix Streamlit's native Expander (the dropdown) */
+    .streamlit-expanderHeader {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        color: #111111 !important;
+        background-color: #F8F9FA !important;
+        border-radius: 8px !important;
+    }
+    .streamlit-expanderContent {
+        background-color: #F8F9FA !important;
+        border: 1px solid #E5E7EB !important;
+        border-top: none !important;
+        border-bottom-left-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
+        padding: 1.5rem !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -161,8 +171,8 @@ with st.spinner("Loading simulation..."):
 # --- THE HOOK ---
 st.markdown("<p class='caption'>STOCKHOLM, SWEDEN</p>", unsafe_allow_html=True)
 st.markdown("<h1>The Algorithm That Knows What You Want to Read Before You Do.</h1>", unsafe_allow_html=True)
-st.markdown("<p class='caption'>Photo: Unsplash / Stockholm Archipelago</p>", unsafe_allow_html=True)
 st.image("https://images.unsplash.com/photo-1509356843151-3e7d96241e11?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", use_container_width=True)
+st.markdown("<p class='caption'>Photo: Unsplash / Stockholm Archipelago</p>", unsafe_allow_html=True)
 
 st.markdown("""
 <p class='drop-cap'>It is 07:30 on a grey Tuesday in November. You are standing on the frost-covered platform at Slussen, waiting for the northbound green line towards T-Centralen. The mist is rolling off the cold water of Riddarfjärden. You pull out your phone to catch up on the morning news.</p>
@@ -224,7 +234,7 @@ st.markdown("""
 <p>Think of a Contextual Bandit like a brilliant bartender at a speakeasy in Gamla Stan. When you walk in, he looks at you (the context). If you are wearing a suit, he might recommend a classic Scotch. If you are wearing a hoodie, he might recommend a craft IPA. But if he's not sure, he'll offer you a small taste of something new.</p>
 
 <p>He balances two competing desires:</p>
-<ul style='font-family: Merriweather; font-size: 1.15rem; line-height: 1.9; margin-bottom: 1.5rem;'>
+<ul style='font-family: Lora; font-size: 1.15rem; line-height: 1.8; margin-bottom: 1.5rem;'>
     <li><strong>Exploitation:</strong> Giving you what he is 100% certain you will love (maximizing immediate reward).</li>
     <li><strong>Exploration:</strong> Taking a risk to learn more about your taste (reducing long-term uncertainty).</li>
 </ul>
@@ -313,16 +323,17 @@ st.markdown("</div>", unsafe_allow_html=True)
 st.markdown("<h2>Under the Hood</h2>", unsafe_allow_html=True)
 
 with st.expander("View the Mathematics of LinUCB"):
+    # Note the use of $$ for math blocks. This tells Streamlit to use KaTeX!
     st.markdown(r"""
     For each arm (article) \(a\), LinUCB calculates a score based on the user context \(x_t\):
-    
-    \[
- Score_a = \underbrace{\hat{\theta}_a^T x_t}_{\text{Exploitation}} + \underbrace{\alpha \sqrt{x_t^T A_a^{-1} x_t}}_{\text{Exploration}} 
-\]
-    
-    *   **\(A_a\)** and **\(b_a\)** are matrices updated online using ridge regression.
-    *   **\(\alpha\)** controls the exploration bonus. Higher \(\alpha\) forces the model to explore uncertain articles.
-    *   **\(\lambda\)** is the regularization parameter (default \(1.0\)).
+
+    $$
+    Score_a = \underbrace{\hat{\theta}_a^T x_t}_{\text{Exploitation}} + \underbrace{\alpha \sqrt{x_t^T A_a^{-1} x_t}}_{\text{Exploration}}
+    $$
+
+    * **\(A_a\)** and **\(b_a\)** are matrices updated online using ridge regression.
+    * **\(\alpha\)** controls the exploration bonus. Higher \(\alpha\) forces the model to explore uncertain articles.
+    * **\(\lambda\)** is the regularization parameter (default \(1.0\)).
     """)
 
 st.markdown("<br><br><p style='text-align: center; color: #888; font-family: Inter; font-size: 0.9rem;'>Written by Prashant Kumar Singh | MSc Data Science, Stockholm University</p>", unsafe_allow_html=True)
