@@ -132,9 +132,13 @@ def photo(url, caption, h=260):
 
 
 def style(fig, h=330, **kw):
-    fig.update_layout(template="plotly_white", height=h, margin=dict(l=14, r=14, t=50, b=14),
-                      font=dict(family="Archivo, sans-serif", color=INK, size=13), paper_bgcolor="#fff", plot_bgcolor="#fff",
-                      title=dict(font=dict(family="Archivo, sans-serif", size=16)), **kw)
+    title = kw.pop("title", None)
+    layout = dict(template="plotly_white", height=h, margin=dict(l=14, r=14, t=50, b=14),
+                  font=dict(family="Archivo, sans-serif", color=INK, size=13), paper_bgcolor="#fff", plot_bgcolor="#fff")
+    layout.update(kw)
+    if title is not None:
+        layout["title"] = dict(text=title, font=dict(family="Archivo, sans-serif", size=16))
+    fig.update_layout(**layout)
     return fig
 
 
